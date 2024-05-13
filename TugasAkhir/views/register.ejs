@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>To-Do List App | Register</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+  </head>
+  <body class="bg-gray-100 flex justify-center items-center h-screen">
+    <div class="w-full md:max-w-md mx-auto bg-white p-8 rounded shadow-md">
+      <h1 class="text-2xl font-semibold mb-2">Register</h1>
+
+      <% if (messages.error || messages.success) { %>
+      <div
+        id="alertMessage"
+        class="<%= messages.error ? 'bg-red-100 border-red-400 text-red-700' : 'bg-green-100 border-green-400 text-green-700' %> flex justify-between border my-2 px-3 py-3 rounded"
+      >
+        <p>
+          <span class="font-bold"
+            ><%= messages.error ? 'Error:' : 'Success:' %></span
+          >
+          <%= messages.error || messages.success %>
+        </p>
+        <i data-feather="x" onclick="closeAlert()" class="cursor-pointer"></i>
+      </div>
+      <% } %>
+
+      <form action="/register" method="post" class="space-y-4">
+        <div>
+          <label for="email" class="block mb-1">Email:</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-blue-500"
+          />
+        </div>
+        <div>
+          <label for="password" class="block mb-1">Password:</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-blue-500"
+          />
+        </div>
+        <button
+          type="submit"
+          class="w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
+        >
+          Register
+        </button>
+      </form>
+
+      <p class="text-sm mt-4">
+        Already have an account?
+        <a href="/login" class="text-blue-500">Login</a>
+      </p>
+    </div>
+
+    <script>
+      feather.replace();
+
+      function closeAlert() {
+        document.getElementById("alertMessage").style.display = "none";
+      }
+    </script>
+  </body>
+</html>

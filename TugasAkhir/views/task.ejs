@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>To-Do List App | Task</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+  </head>
+  <body class="bg-gray-100">
+    <nav
+      class="bg-indigo-700 px-10 py-2 flex justify-between items-center text-white sticky top-0"
+    >
+      <a
+        href="/"
+        class="text-white hover:bg-indigo-500 hover:text-white rounded-md px-3 py-2 text-sm font-medium text-xl"
+        >Home</a
+      >
+      <a
+        href="/logout"
+        class="text-white hover:bg-indigo-500 hover:text-white rounded-md px-3 py-2 text-sm font-medium text-xl"
+        >Logout</a
+      >
+    </nav>
+
+    <div class="px-10 mt-10">
+      <h1
+        class="text-3xl md:text-4xl font-bold mb-7 md:mb-5 text-center text-gray-800"
+      >
+        To-Do List
+      </h1>
+      <ul class="space-y-3">
+        <% tasks.forEach(task => { status = task.completed === "true" %>
+        <li
+          id="<%= task.id %>"
+          class="border border-gray-300 p-4 flex justify-between items-center"
+        >
+          <div class="flex items-center space-x-4">
+            <input type="checkbox" class="cursor-pointer size-5" <%= status ?
+            'checked' : '' %> onclick="updateTask('<%= !status %>', '<%= task.id
+            %>', '<%= task.user_id %>'); toggleStrikeThrough('task-<%= task.id
+            %>');" />
+
+            <span
+              class="text-xl <%= status ? 'line-through' : '' %>"
+              id="task-<%= task.id %>"
+              ><%= task.title %></span
+            >
+
+            <input
+              type="text"
+              value="<%= task.title %>"
+              class="italic text-gray-600 text-xl outline-none bg-transparent display-none hidden"
+              id="input-<%= task.id %>"
+            />
+          </div>
+          <div class="flex items-center space-x-4">
+            <i
+              data-feather="edit"
+              class="w-7 h-7 cursor-pointer"
+              id="edit-<%= task.id %>"
+              onclick="editTask('<%= task.id %>', '<%= task.user_id %>', '<%= task.title %>')"
+            ></i>
+            <i
+              data-feather="trash-2"
+              class="w-7 h-7 cursor-pointer"
+              id="delete-<%= task.id %>"
+              onclick="deleteTask('<%= task.id %>', '<%= task.user_id %>')"
+            ></i>
+          </div>
+        </li>
+        <% }) %>
+      </ul>
+    </div>
+
+    <div
+      id="modal"
+      class="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center <% if (messages.error) { %><% } else { %>hidden<% } %>"
+    >
+      <div class="bg-white p-6 rounded shadow-lg">
+        <h2 class="text-2xl font-semibold mb-2">Add Task</h2>
+        <% if (messages.error) { %>
+        <div
+          id="alertMessage"
+          class="<% if (messages.error) { %>bg-red-100 border-red-400 text-red-700<% } else { %>bg-green-100 border-green-400 text-green-700<% } %> flex justify-between border my-2 px-3 py-3 rounded"
+        >
+          <p><span class="font-bold">Error:</span> <%= messages.error %></p>
+          <i data-feather="x" onclick="closeAlert()" class="cursor-pointer"></i>
+        </div>
+        <% } %>
+        <form action="/task" method="post">
+          <input
+            type="text"
+            id="title"
+            name="title"
+            class="w-full mb-3 px-3 py-2 border border-gray-300 rounded focus:outline-blue-500"
+          />
+          <input
+            type="number"
+            id="user_id"
+            name="user_id"
+            class="hidden"
+            value="<%= user_id %>"
+          />
+          <button
+            id="confirmAddTask"
+            type="submit"
+            class="py-2 px-3 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
+          >
+            Add Task
+          </button>
+          <button
+            id="cancelAddTask"
+            type="button"
+            class="p-2 px-3 bg-gray-500 text-white rounded hover:bg-gray-600 focus:outline-none focus:bg-gray-600"
+            onclick="document.getElementById('modal').classList.add('hidden')"
+          >
+            Cancel
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <div id="addTask" class="fixed bottom-10 right-10">
+      <i
+        id="addTaskButton"
+        data-feather="plus"
+        class="w-12 h-12 cursor-pointer bg-blue-600 text-white rounded-full p-3 hover:bg-blue-800"
+      ></i>
+    </div>
+
+    <script>
+      feather.replace();
+
+      function toggleStrikeThrough(taskId) {
+        const task = document.getElementById(taskId);
+        task.classList.toggle("line-through");
+      }
+
+      function updateTask(status, id, user_id, title) {
+        fetch(`/task/${id}/update`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status, user_id, title }),
+        });
+      }
+
+      function editTask(id, user_id, title) {
+        const task = document.getElementById(`task-${id}`);
+        const input = document.getElementById(`input-${id}`);
+
+        task.classList.add("hidden");
+        input.classList.remove("hidden");
+        input.focus();
+        input.setSelectionRange(input.value.length, input.value.length);
+
+        input.addEventListener("keyup", (event) => {
+          if (event.key === "Enter") {
+            task.classList.remove("hidden");
+            input.classList.add("hidden");
+
+            const newTitle = input.value.trim();
+            if (newTitle === "") {
+              alert("Task cannot be empty!");
+              input.value = title;
+              return;
+            }
+
+            if (newTitle !== title) {
+              updateTask(id, user_id, newTitle);
+              task.innerText = newTitle;
+            }
+          }
+        });
+
+        input.addEventListener("blur", () => {
+          task.classList.remove("hidden");
+          input.classList.add("hidden");
+
+          const newTitle = input.value.trim();
+          if (newTitle === "") {
+            alert("Task cannot be empty!");
+            input.value = title;
+            return;
+          }
+
+          if (newTitle !== title) {
+            task.innerText = newTitle;
+            updateTask(status, id, user_id, newTitle);
+          }
+        });
+      }
+
+      function deleteTask(id, user_id) {
+        fetch(`/task/${id}/delete`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ user_id }),
+        }).then(() => {
+          document.getElementById(id).remove();
+        });
+      }
+
+      document.getElementById("addTaskButton").addEventListener("click", () => {
+        const modal = document.getElementById("modal");
+        modal.classList.toggle("hidden");
+      });
+
+      window.addEventListener("click", (event) => {
+        const modal = document.getElementById("modal");
+        if (event.target === modal) {
+          modal.classList.add("hidden");
+        }
+      });
+
+      function closeAlert() {
+        document.getElementById("alertMessage").style.display = "none";
+      }
+    </script>
+  </body>
+</html>
