@@ -9,7 +9,7 @@ This To-Do List App allows users to manage their tasks efficiently. It provides 
 ## Download source code
 
 ```bash
-git clone https://ahmadhudasalam/gamelab-express-json-rest-api
+git clone https://github.com/ahmadhudasalam/gamelab-express-json-rest-api
 
 cd gamelab-express-json-rest-api/TugasAkhir/
 ```
