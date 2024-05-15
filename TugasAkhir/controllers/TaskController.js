@@ -120,9 +120,8 @@ const destroy = async (req, res) => {
 
 const completed = async (req, res) => {
   try {
-    const { status } = req.query;
     const user_id = req.user.id;
-    const tasks = await Task.getTaskCompleted(user_id, status);
+    const tasks = await Task.getTaskCompleted(user_id);
 
     if (tasks.length > 0) {
       const data = {

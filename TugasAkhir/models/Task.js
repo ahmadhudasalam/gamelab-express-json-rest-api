@@ -61,11 +61,10 @@ const deleteTask = (id, user_id) => {
   });
 };
 
-const getTaskCompleted = (user_id, status) => {
+const getTaskCompleted = (user_id) => {
   return new Promise((resolve, reject) => {
-    const completed = status === "true";
-    const query = `SELECT id, title, IF(completed, "true", "false") completed FROM tasks WHERE user_id = ? AND completed = ?`;
-    db.query(query, [user_id, completed], (err, results) => {
+    const query = `SELECT id, title, IF(completed, "true", "false") completed FROM tasks WHERE user_id = ? AND completed = true`;
+    db.query(query, [user_id], (err, results) => {
       resolve(results);
     });
   });
